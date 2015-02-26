@@ -11,23 +11,20 @@ CloudCIX is developed by CIX: http://www.cix.ie
 In order to install it you must download the source code and compile it.
 Then add it to your build path in your project.
 
-# Dependencies
+# Dependencies #
 
-This SDK uses json-simple to handle JSON request and response objects.
-It can be downloaded in the following link:
-https://code.google.com/p/json-simple/
 
-In order to run the unit test in the source code the JUnit library is used.
-It can be downloaded in the following link:
-https://github.com/junit-team/junit/wiki/Download-and-Install
+1) json-simple is used to handle JSON request and response objects.
 
-Those libraries are not included in the repository. You must add them
-to your build path on the source project.
+Download: https://code.google.com/p/json-simple/
+
+2) JUnit is used as a test runner
+
+Download: https://github.com/junit-team/junit/
 
 # Required settings #
 
-When you run your project you should set the settings variable 
-in the root of your application in a file called cloudcix_setting.properties
+You should create a properties file in the root of your application called cloudcix_setting.properties
 
 Required `CLOUDCIX` and `OPENSTACK` settings
 
@@ -36,19 +33,19 @@ Required `CLOUDCIX` and `OPENSTACK` settings
     CLOUDCIX_API_USERNAME = user@cloudcix.com
     CLOUDCIX_API_PASSWORD = super53cr3t3
     CLOUDCIX_API_ID_MEMBER = 2243
-    OPENSTACK_KEYSTONE_URL = http://keystone.cloudcix.com:5000/v3
+    OPENSTACK_KEYSTONE_URL = https://keystone.cloudcix.com:5000/v3
 
-# Considerations about Response
+# Response Object #
 
 The Response object contains the items returned by a HTTP response:
-code      An int value containing the HTTP response code.
-message   A String value containing the HTTP response code message.
-headers   A Map<String, List<String>> object containig the headers
-	  returned by the service as JAVA gets them.
-body	  A JSONObject containing the body response of the service.
 
-Notice that the body will contain plain basic items as other JSONObject.
-In order to get them properly they need to be casted.
+- code - An int value containing the HTTP response code.
+- message - A String value containing the HTTP response code message.
+- headers - A Map<String, List<String>> object containig the headers returned by the service as JAVA gets them.
+- body - A JSONObject containing the body response of the service.
+
+
+NOTE: response body will contain basic data types as well as other nested JSON objects.
 
 Given the following body:
     
@@ -75,7 +72,7 @@ Given the following body:
 
 token contains an object so users must do:
 
-    //Assume Response variable is named "response"
+    //Assuming that the Response variable is named "response"
     JSONObject token = (JSONObject) response.body.get("token");
 
 Now if you want the user:
