@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Properties;
@@ -20,9 +21,26 @@ public class Utilities {
 	private InputStream input = null;
 	public String api_token;
 	private static String contextPath = "";
+	private Properties props;
+	
 	
 	public Utilities(String contextPath){
 		Utilities.contextPath = contextPath;
+		props = new Properties();
+		try {
+			input = new FileInputStream(contextPath + File.separator + "WEB-INF" + File.separator + "classes" + File.separator + "cloudcix_settings.properties");
+			props.load(input); 
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 	
 	public static String getContextPath() {
@@ -43,22 +61,8 @@ public class Utilities {
 	 * @return	Properties object containing the settings.
 	 */
 	public Properties get_config() {
-		Properties prop = new Properties();
-		try {
-			input = new FileInputStream(/*"cloudcix_settings.properties"*/contextPath + File.separator + "WEB-INF" + File.separator + "classes" + File.separator + "cloudcix_settings.properties");
-			prop.load(input); 
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		} finally {
-			if (input != null) {
-				try {
-					input.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return prop;
+		
+		return props;
 	}
 	
 	/**
@@ -120,8 +124,9 @@ public class Utilities {
 	/**
 	 * Returns the current Administrative token. If it does not exist it generates a new one.
 	 * @return	the administrative token.
+	 * @throws SocketTimeoutException 
 	 */
-	public String get_admin_token() {
+	public String get_admin_token() throws SocketTimeoutException {
 		if (api_token == null || api_token.isEmpty()) {
 			get_new_admin_token();
 		}
@@ -132,8 +137,9 @@ public class Utilities {
 	 * Returns the current Administrative token. If it does not exist it generates a new one.
 	 * @param credentials Uses these credentials to obtain the admin token
 	 * @return
+	 * @throws SocketTimeoutException 
 	 */
-	public String get_admin_token(CloudCIXAuth credentials) {
+	public String get_admin_token(CloudCIXAuth credentials) throws SocketTimeoutException {
 		if (api_token == null || api_token.isEmpty()) {
 			get_new_admin_token(credentials);
 		}
@@ -143,12 +149,13 @@ public class Utilities {
 	/**
 	 * Generates a new Administrative token using the credentials stored in the cloudcix_settings file.
 	 * If the settings are wrong or it cannot generate a new Administrative token it will throw an exception. 
+	 * @throws SocketTimeoutException 
 	 */
-	public void get_new_admin_token() {
+	public void get_new_admin_token() throws SocketTimeoutException {
 		Properties settings = get_config();
-		CloudCIXAuth credentials = new CloudCIXAuth(settings.getProperty("CLOUDCIX_API_USERNAME"), settings.getProperty("CLOUDCIX_API_PASSWORD"), settings.getProperty("CLOUDCIX_API_ID_MEMBER"), null);
-		Auth cli = new Auth();
-		Response response = cli.keystone.create(credentials);
+		CloudCIXAuth credentials = new CloudCIXAuth(settings.getProperty("CLOUDCIX_API_USERNAME"), settings.getProperty("CLOUDCIX_API_PASSWORD"), null/*settings.getProperty("CLOUDCIX_API_ID_MEMBER")*/, null);
+		//Auth cli = new Auth();
+		Response response = Auth.getKeystone().create(credentials);
 		
 		if (response.code == 201) {
 			setApi_token(response.headers.get("X-Subject-Token").get(0));
@@ -169,11 +176,12 @@ public class Utilities {
 	 * Generates a new Administrative token using the supplied credentials.
 	 * If the settings are wrong or it cannot generate a new Administrative token it will throw an exception.
 	 * @param credentials Uses these credentials to obtain the admin token 
+	 * @throws SocketTimeoutException 
 	 */
-	public void get_new_admin_token(CloudCIXAuth credentials) {
+	public void get_new_admin_token(CloudCIXAuth credentials) throws SocketTimeoutException {
 		
-		Auth cli = new Auth();
-		Response response = cli.keystone.create(credentials);
+		//Auth cli = new Auth();
+		Response response = Auth.getKeystone().create(credentials);
 		
 		if (response.code == 201) {
 			setApi_token(response.headers.get("X-Subject-Token").get(0));

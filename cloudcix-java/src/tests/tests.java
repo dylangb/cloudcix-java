@@ -1,5 +1,6 @@
 package tests;
 
+import java.net.SocketTimeoutException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
@@ -28,7 +29,7 @@ public class tests {
 	}
 	
 	@Test
-	public void test_membership() {
+	public void test_membership() throws SocketTimeoutException {
 		
 //		Auth cli = new Auth();
 //		CloudCIXAuth credentials = new CloudCIXAuth("dylan.buckley@mohago.com", "Capslock1", "11", null);
@@ -60,7 +61,7 @@ public class tests {
 	}
 	
 	@Test
-	public void test_keystone() {
+	public void test_keystone() throws SocketTimeoutException {
 		System.out.println("Starting keystone tests.");
 		System.out.println("Getting User token.");
 		Auth cli = new Auth();
@@ -133,7 +134,7 @@ public class tests {
 	}
 	
 	@Test
-	public void test_language_list() {
+	public void test_language_list() throws SocketTimeoutException {
 		System.out.println("Starting test language list.");
 		
 		Auth auth_cli = new Auth();
@@ -159,7 +160,7 @@ public class tests {
 	}
 	
 	@Test
-	public void hello_world() {
+	public void hello_world() throws SocketTimeoutException {
 		System.out.println("Starting hello world sample.");
 		
 		System.out.println("Getting admin token.");

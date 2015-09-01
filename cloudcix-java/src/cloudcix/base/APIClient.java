@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
@@ -19,11 +20,11 @@ import org.json.simple.parser.ParseException;
 public class APIClient {
 	Properties settings = new Properties();
 	String application, service_url, api_version;
-	private Utilities utilities = new Utilities("");
+	private Utilities utilities;
 	
-	public APIClient() {
-		settings = utilities.get_config();
-	}
+//	public APIClient() {
+//		settings = utilities.get_config();
+//	}
 	
 	public APIClient(String start_application, String start_service_url, String contextPath) {
 		api_version = "/v1/";
@@ -34,13 +35,13 @@ public class APIClient {
 		
 	}
 	
-	public APIClient(String start_application, String start_service_url, String start_api_version, String contextPath) {
-		application = start_application;
-		service_url = start_service_url;
-		api_version = start_api_version;
-		utilities = new Utilities(contextPath);
-		settings = utilities.get_config();
-	}
+//	public APIClient(String start_application, String start_service_url, String start_api_version, String contextPath) {
+//		application = start_application;
+//		service_url = start_service_url;
+//		api_version = start_api_version;
+//		utilities = new Utilities(contextPath);
+//		settings = utilities.get_config();
+//	}
 	
 	public Properties getSettings() {
 		return settings;
@@ -68,8 +69,9 @@ public class APIClient {
 	 * 								message 	the HTTP message in text format.
 	 * 								headers		a list of headers and its values returned by the service.
 	 * 								body		the JSON body returned by the service if anything was returned. 
+	 * @throws SocketTimeoutException 
 	 */
-	private Response _call(String method, String token, String pk, JSONObject data, Map<String, String> query_params, Map<String, String> path_params, Map<String, String> header_params) {
+	private Response _call(String method, String token, String pk, JSONObject data, Map<String, String> query_params, Map<String, String> path_params, Map<String, String> header_params) throws SocketTimeoutException {
 		Response response = new Response();
 		
 		JSONParser parser = new JSONParser();
@@ -87,7 +89,7 @@ public class APIClient {
 						conn.setRequestProperty(entry.getKey(), entry.getValue());
 					}
 				}
-				
+				conn.setReadTimeout(10000);
 				if (data != null) {
 					conn.setRequestProperty("Content-Type", "application/json");
 					conn.setDoOutput(true);
@@ -157,8 +159,10 @@ public class APIClient {
 			}
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
-		} catch (IOException ex) {
-			ex.printStackTrace();
+		} catch (IOException e) {
+			if (e.getCause() instanceof SocketTimeoutException) {
+				throw new SocketTimeoutException();
+			}
 		} catch (ParseException pe) {
 			pe.printStackTrace();
 		}
@@ -189,8 +193,9 @@ public class APIClient {
 	 * 								headers		a list of headers and its values returned by the service.
 	 * 								body		the JSON body returned by the service if anything was returned. 
 	 * @return
+	 * @throws SocketTimeoutException 
 	 */
-	public Response create(String token, JSONObject data, Map<String, String> query_params, Map<String, String> path_params, Map<String, String> header_params) {
+	public Response create(String token, JSONObject data, Map<String, String> query_params, Map<String, String> path_params, Map<String, String> header_params) throws SocketTimeoutException {
 		return _call("POST", token, null, data, query_params, path_params, header_params);
 	}
 
@@ -220,8 +225,9 @@ public class APIClient {
 	 * 								headers		a list of headers and its values returned by the service.
 	 * 								body		the JSON body returned by the service if anything was returned. 
 	 * @return
+	 * @throws SocketTimeoutException 
 	 */
-	public Response update(String token, String pk, JSONObject data, Map<String, String> query_params, Map<String, String> path_params, Map<String, String> header_params) {
+	public Response update(String token, String pk, JSONObject data, Map<String, String> query_params, Map<String, String> path_params, Map<String, String> header_params) throws SocketTimeoutException {
 		return _call("PUT", token, pk, data, query_params, path_params, header_params);
 	}
 
@@ -250,8 +256,9 @@ public class APIClient {
 	 * 								headers		a list of headers and its values returned by the service.
 	 * 								body		the JSON body returned by the service if anything was returned. 
 	 * @return
+	 * @throws SocketTimeoutException 
 	 */
-	public Response partial_update(String token, String pk, JSONObject data, Map<String, String> query_params, Map<String, String> path_params, Map<String, String> header_params) {
+	public Response partial_update(String token, String pk, JSONObject data, Map<String, String> query_params, Map<String, String> path_params, Map<String, String> header_params) throws SocketTimeoutException {
 		return _call("PATCH", token, pk, data, query_params, path_params, header_params);
 	}
 
@@ -280,8 +287,9 @@ public class APIClient {
 	 * 								headers		a list of headers and its values returned by the service.
 	 * 								body		the JSON body returned by the service if anything was returned. 
 	 * @return
+	 * @throws SocketTimeoutException 
 	 */
-	public Response read(String token, String pk, JSONObject data, Map<String, String> query_params, Map<String, String> path_params, Map<String, String> header_params) {
+	public Response read(String token, String pk, JSONObject data, Map<String, String> query_params, Map<String, String> path_params, Map<String, String> header_params) throws SocketTimeoutException {
 		return _call("GET", token, pk, data, query_params, path_params, header_params);
 	}
 
@@ -310,8 +318,9 @@ public class APIClient {
 	 * 								headers		a list of headers and its values returned by the service.
 	 * 								body		the JSON body returned by the service if anything was returned. 
 	 * @return
+	 * @throws SocketTimeoutException 
 	 */
-	public Response delete(String token, String pk, JSONObject data, Map<String, String> query_params, Map<String, String> path_params, Map<String, String> header_params) {
+	public Response delete(String token, String pk, JSONObject data, Map<String, String> query_params, Map<String, String> path_params, Map<String, String> header_params) throws SocketTimeoutException {
 		return _call("DELETE", token, pk, data, query_params, path_params, header_params);
 	}
 
@@ -344,8 +353,9 @@ public class APIClient {
 	 * 								headers		a list of headers and its values returned by the service.
 	 * 								body		the JSON body returned by the service if anything was returned. 
 	 * @return
+	 * @throws SocketTimeoutException 
 	 */
-	public Response list(String token, JSONObject data, Map<String, String> query_params, Map<String, String> path_params, Map<String, String> header_params) {
+	public Response list(String token, JSONObject data, Map<String, String> query_params, Map<String, String> path_params, Map<String, String> header_params) throws SocketTimeoutException {
 		return _call("GET", token, null, data, query_params, path_params, header_params);
 	}
 
@@ -373,8 +383,9 @@ public class APIClient {
 	 * 								headers		a list of headers and its values returned by the service.
 	 * 								body		the JSON body returned by the service if anything was returned. 
 	 * @return
+	 * @throws SocketTimeoutException 
 	 */
-	public Response head(String token, String pk, JSONObject data, Map<String, String> query_params, Map<String, String> path_params, Map<String, String> header_params) {
+	public Response head(String token, String pk, JSONObject data, Map<String, String> query_params, Map<String, String> path_params, Map<String, String> header_params) throws SocketTimeoutException {
 		return _call("HEAD", token, pk, data, query_params, path_params, header_params);
 	}
 

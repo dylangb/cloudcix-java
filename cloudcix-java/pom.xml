@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cloudcix</groupId>
 	<artifactId>CloudCIX-SDK</artifactId>
-	<version>0.0.3</version>
+	<version>0.0.4</version>
 	<dependencies>
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
@@ -48,8 +48,8 @@
 						<manifestEntries>
 							<url>cloudcix.com</url>
 							<Specification-Title>CloudCIX-SDK</Specification-Title>
-							<Specification-Version>0.0.3</Specification-Version>
-							<Implementation-Version>0.0.3</Implementation-Version>
+							<Specification-Version>0.0.4</Specification-Version>
+							<Implementation-Version>0.0.4</Implementation-Version>
 						</manifestEntries>
 					</archive>
 				</configuration>

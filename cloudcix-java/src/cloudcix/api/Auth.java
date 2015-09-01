@@ -8,13 +8,16 @@ public class Auth {
 	/**
 	 * Client for Keystone 
 	 */
-	public KeystoneClient keystone = new KeystoneClient("/auth/tokens", Utilities.getContextPath());
+	public static final KeystoneClient keystone;
+	static{
+		keystone= new KeystoneClient("/auth/tokens", Utilities.getContextPath());
+	}
 
 	public Auth() {
 		
 	}
 
-	public KeystoneClient getKeystone() {
+	public static KeystoneClient getKeystone() {
 		return keystone;
 	}
 }
